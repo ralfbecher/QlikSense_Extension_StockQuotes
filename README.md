@@ -15,5 +15,5 @@ Properties:
 -----------
 
 1. Stock Symbol: ticker symbol for stock
-2. Historical Days: amount of days to go back from today to retrieve qoutes
+2. Historical Days: amount of days to go back from today to retrieve quotes
 3. Candlestick: switch chart type from OHCL to Candlestick
