@@ -1,6 +1,7 @@
 define(["jquery", "underscore", "./d3.v3.min", "css!./nv.d3.min.css"],
     function ($, _) {
         'use strict';
+        var actualChartType = {};
 
         return {
             initialProperties: {
@@ -70,12 +71,21 @@ define(["jquery", "underscore", "./d3.v3.min", "css!./nv.d3.min.css"],
             template: '<div qv-extension style="height: 100%; width: 100%;"></div>',
 
             controller: ["$scope", "$element", function (scope, element) {
+                scope.vm = {};
 
                 function render(element, layout) {
-                    var width = element.width();
-                    var height = element.height();
-                    var chartType = layout.chartType;
+                    var width = element.width(),
+                        height = element.height(),
+                        chartType = layout.chartType,
+                        chartTypeChanged = false;
 
+                    if (!actualChartType.hasOwnProperty(layout.qInfo.qId)) {
+                        actualChartType[layout.qInfo.qId] = chartType;
+                    } else {
+                        chartTypeChanged = !(actualChartType[layout.qInfo.qId] === chartType);
+                        actualChartType[layout.qInfo.qId] = chartType;
+                    }
+                    
                     var endDate = new Date();
                     var startDate = new Date();
                     startDate.setDate(endDate.getDate() - layout.historicalDays);
@@ -121,7 +131,12 @@ define(["jquery", "underscore", "./d3.v3.min", "css!./nv.d3.min.css"],
                                 })
                                 .entries(dataNVD3);
 
+                            if (chartTypeChanged) {
+                                d3.select(element[0]).select('svg').remove();
+                            }
+                            
                             var svg = d3.select(element[0]).select('svg');
+                            
                             if (svg[0][0]) {
                                 svg.style('width', width)
                                     .style('height', height);
@@ -138,7 +153,7 @@ define(["jquery", "underscore", "./d3.v3.min", "css!./nv.d3.min.css"],
                             nv.addGraph(function () {
 
                                 // Select whether OHLC or Candlestick
-                                chart = (chartType == 'ohlc' ? chart = nv.models.ohlcBarChart() : chart = nv.models.candlestickBarChart())
+                                chart = (chartType === 'ohlc' ? chart = nv.models.ohlcBarChart() : chart = nv.models.candlestickBarChart())
                                     .x(function (d) {
                                         return d['date']
                                     })
@@ -181,27 +196,26 @@ define(["jquery", "underscore", "./d3.v3.min", "css!./nv.d3.min.css"],
                     });
 
                 }
-                scope.renderMe = _.debounce(render, 250, true);
-                scope.renderMeLater = _.debounce(render, 250);
+                scope.vm.renderMeLater = _.debounce(render, 250);
 
-                scope.getSizing = function () {
+                scope.vm.getSizing = function () {
                     return {
                         height: element.height(),
                         width: element.width()
                     };
                 };
 
-                scope.renderMe(element, scope.layout);
-
                 scope.component.model.Validated.bind(function () {
+                    //console.log("render validated")
                     render(element, scope.layout);
                 });
 
-                scope.$watch(scope.getSizing, function (newValue, oldValue) {
-                    //console.log("scope.getSizing", (new Date).getTime(), newValue, oldValue);
+                scope.$watch(scope.vm.getSizing, function (newValue, oldValue) {
+                    //console.log("scope.vm.getSizing", (new Date).getTime(), newValue, oldValue);
                     // subtitle frame and selection frame reduces size
                     if (Math.abs(oldValue.height - newValue.height) > 23 || Math.abs(oldValue.width - newValue.width) > 34) {
-                        scope.renderMeLater(element, scope.layout);
+                        //console.log("render resize")
+                        scope.vm.renderMeLater(element, scope.layout);
                     }
                 }, true);
             }]
