@@ -90,7 +90,7 @@ define(["jquery", "underscore", "./d3.v3.min", "css!./nv.d3.min.css"],
                     var startDate = new Date();
                     startDate.setDate(endDate.getDate() - layout.historicalDays);
                     var query = 'select * from yahoo.finance.historicaldata where symbol = "' + layout.stockSymbol + '" and startDate="' + startDate.toISOString().slice(0, 10) + '" and endDate="' + endDate.toISOString().slice(0, 10) + '"';
-                    var api = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent(query) + '&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json&_maxage=3600';
+                    var api = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent(query) + '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&format=json&_maxage=3600';
                     // console.log(query);	
                     var dataNVD3 = [];
 
