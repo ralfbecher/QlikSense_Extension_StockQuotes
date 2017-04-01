@@ -78,6 +78,8 @@ define(["jquery", "underscore", "./d3.v3.min", "css!./nv.d3.min.css"],
                         height = element.height(),
                         chartType = layout.chartType,
                         chartTypeChanged = false;
+                    
+                    d3.selectAll('.nvtooltip').remove();
 
                     if (!actualChartType.hasOwnProperty(layout.qInfo.qId)) {
                         actualChartType[layout.qInfo.qId] = chartType;
